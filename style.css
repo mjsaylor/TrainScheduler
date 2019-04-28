@@ -1,0 +1,33 @@
+/* font-family: 'Patua One', cursive;
+font-family: 'Alfa Slab One', cursive; */
+
+.jumbotron {
+    text-align: center;
+    background-image: url(photos/prettytrain.jpg);
+    background-size: cover;
+    background-position: 100%;
+    border: 4px solid teal;
+    color: white;
+    font-family: 'Alfa Slab One', cursive;
+    text-shadow: 2px 2px gray;
+}
+ 
+body {
+    background-color: teal;
+    color: #fff;
+}
+
+
+.table {
+    background-color: #fff;
+    color: purple;
+}
+
+.btn {
+    background-color: purple;
+}
+
+.btn:hover {
+    background-color: #ffb902;
+}
+

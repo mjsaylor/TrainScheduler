@@ -7,6 +7,14 @@ var config = {
     messagingSenderId: "353948674469"
 };
 
+function updateArrivalTime(arrivalTime, frequency) {
+    var now = moment();
+    var minutesAway = now.diff(arrivalTime, "minutes");
+    var timeAdded = Math.ceil(minutesAway / frequency) * frequency;
+    arrivalTime.add(timeAdded, "minutes");
+
+}
+
 firebase.initializeApp(config);
 var database = firebase.database();
 
@@ -16,7 +24,17 @@ $("#add-train-btn").on("click", function (event) {
     var trainName = $("#train-input").val().trim();
     var trainDest = $("#destination-input").val().trim();
     console.log(trainName);
-    var arrivalTime = $("#arrival-input").val().trim();
+    var arrivalTime = $("#arrival-input").val().trim(); //format is in military time HH:mm
+    var arrivalMoment = moment(arrivalTime, "HH:mm")
+    console.log(arrivalTime)
+
+
+
+    if (moment().isAfter(arrivalMoment)) {
+        arrivalMoment.add(1, 'd');
+    }  
+    arrivalTime = arrivalMoment.format();
+
     var trainFreq = $("#frequency-input").val().trim();
 
     var nextTrain = {
@@ -25,6 +43,7 @@ $("#add-train-btn").on("click", function (event) {
         time: arrivalTime,
         frequency: trainFreq
     };
+
     
     database.ref().push(nextTrain);
 
@@ -35,22 +54,32 @@ $("#add-train-btn").on("click", function (event) {
 });
 
 database.ref().on("child_added", function(child) {
+    console.log("child_added")
     var trainName = child.val().name;
     var trainDest = child.val().destination;
-    var arrivalTime = child.val().time;
+    var arrivalTime = moment(child.val().time);
+    console.log(arrivalTime)
     var trainFreq = child.val().frequency;
+    var timeNow = moment()
+    console.log("now:" + moment())
+    console.log("military time: " + timeNow.format("HH:mm"))
 
-    // var momentInst = moment(arrivalTime, 'HH:mm')
-    // var empMonths = momentInst.diff(moment(), 'months') * -1;
-    // var totalBilled = empMonths * empRate;
+    if (timeNow.isAfter(arrivalTime)) { 
+       updateArrivalTime(arrivalTime, trainFreq);
+    }
+
+    var minutesAway = arrivalTime.diff(timeNow, "minutes");
+    console.log("minutes Away:" + minutesAway);
+
 
     var nameCell = $("<td>").text(trainName);
     var destCell = $("<td>").text(trainDest);
     var freqCell = $("<td>").text(trainFreq);
-    var arrivalCell = $("<td>").text(arrivalTime);
-    // var minutesCell = $("<td>").text(minutesAway);
+    var arrivalCell = $("<td>").text(arrivalTime.format("HH:mm"));
+    var minutesCell = $("<td>").text(minutesAway);
 
-    var newRow = $("<tr>").append(nameCell, destCell, freqCell, arrivalCell/*, minutesCell*/);
+    var newRow = $("<tr>").append(nameCell, destCell, freqCell, arrivalCell, minutesCell)
     $("tbody").append(newRow);
 
 });
+
